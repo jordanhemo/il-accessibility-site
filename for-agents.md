@@ -18,7 +18,7 @@ requirements: `lang="he"` and `dir="rtl"` on Hebrew pages, and a mandatory acces
 - Skill instructions: https://github.com/jordanhemo/il-accessibility-audit/blob/main/il-accessibility-audit/SKILL.md
 - Download (zip): https://github.com/jordanhemo/il-accessibility-audit/raw/main/dist/il-accessibility-audit.zip
 - Download (.skill, for Claude.ai upload): https://github.com/jordanhemo/il-accessibility-audit/raw/main/dist/il-accessibility-audit.skill
-- Human-facing install page (Hebrew), to point the user at: https://il-accessibility-site.vercel.app/install
+- Human-facing install steps (Hebrew), to point the user at: https://il-accessibility-site.vercel.app/#install
 - License: MIT. Requires Python 3 only.
 
 ## Install

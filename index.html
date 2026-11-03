@@ -7,8 +7,8 @@
 <title>בודק נגישות ישראלי</title>
 <meta name="description" content="סקיל חינמי לסוכני AI (Claude, Codex ואחרים) שסורק פרויקט אינטרנט לפי תקן ישראלי 5568, מפיק דוח ומתקן את מה שבטוח לתקן.">
 <link rel="canonical" href="https://il-accessibility-site.vercel.app/">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="manifest" href="site.webmanifest">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:title" content="בודק נגישות ישראלי">
 <meta property="og:description" content="סקיל חינמי לסוכני AI שבודק אתרים לפי תקן ישראלי 5568, מפיק דוח בעברית ומתקן את מה שבטוח לתקן.">
@@ -34,87 +34,206 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="site.css">
+<link href="https://fonts.googleapis.com/css2?family=Karantina:wght@400;700&family=Assistant:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* hero */
-.hero .wrap { display: grid; grid-template-columns: 1fr 1.05fr; gap: 56px; align-items: center; padding-block: 64px 56px; }
-.hero .lede { margin-bottom: 28px; }
-.hero h1 { font-size: clamp(2.2rem, 5vw, 3.1rem); }
-.facts { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 22px; color: var(--ink-2); font-size: 0.93rem; list-style: none; padding: 0; }
-.facts li { display: flex; align-items: center; gap: 8px; }
-.facts li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--shape-2); }
+/* Layout: a diagnostic surface. Headline column on the start side, a live mock-browser being scanned beside it;
+   every section illustrated with the instruments of accessibility itself (focus ring, contrast meter, diff). */
+:root {
+  --paper: #f3f5f8;
+  --paper-2: #e8ecf2;
+  --panel: #ffffff;
+  --ink: #0f1626;
+  --ink-2: #4a5468;
+  --rule: #cfd6e1;
+  --focus: #ff8a1f;          /* graphics only */
+  --focus-ink: #a84200;      /* text on paper */
+  --focus-soft: #ffeedd;
+  --ok: #157a4a;
+  --ok-soft: #d9f2e4;
+  --crit: #c2271f;
+  --crit-soft: #fde0dd;
+  --warn: #8a5900;
+  --warn-soft: #fff3cc;
+  --code-bg: #0f1626;
+  --code-fg: #e9eef7;
+  --code-add: #7fe0a8;
+  --code-del: #ff9f98;
+  --display: "Karantina", "Assistant", system-ui, sans-serif;
+  --body: "Assistant", "Heebo", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0d1220; --paper-2: #131a2c; --panel: #171f33; --ink: #eef2f9; --ink-2: #aab4c8; --rule: #2a3449;
+    --focus: #ffa14d; --focus-ink: #ffb46b; --focus-soft: #3a2410;
+    --ok: #6fd79b; --ok-soft: #10301f; --crit: #ff8d84; --crit-soft: #3d1613; --warn: #f5c45a; --warn-soft: #3a2d08;
+    --code-bg: #060912; --code-fg: #e9eef7; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0d1220; --paper-2: #131a2c; --panel: #171f33; --ink: #eef2f9; --ink-2: #aab4c8; --rule: #2a3449;
+  --focus: #ffa14d; --focus-ink: #ffb46b; --focus-soft: #3a2410;
+  --ok: #6fd79b; --ok-soft: #10301f; --crit: #ff8d84; --crit-soft: #3d1613; --warn: #f5c45a; --warn-soft: #3a2d08;
+  --code-bg: #060912; --code-fg: #e9eef7; color-scheme: dark;
+}
 
-.scan { position: relative; background: var(--bg); border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; box-shadow: 0 24px 48px -32px rgba(20, 23, 31, .35); }
-.scan .bar { display: flex; gap: 6px; align-items: center; padding: 11px 14px; border-bottom: 1px solid var(--rule); background: var(--surface); direction: ltr; }
-.scan .bar i { width: 9px; height: 9px; border-radius: 50%; background: var(--shape-2); }
-.scan .bar span { margin-inline-start: 10px; flex: 1; height: 9px; border-radius: 5px; background: var(--shape); }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; direction: rtl;
+  background: var(--paper); color: var(--ink);
+  font-family: var(--body); font-size: 1.0625rem; line-height: 1.65;
+}
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
+code, pre, .mono { font-family: var(--mono); }
+.wrap {
+  max-width: 1120px; margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.skip { position: absolute; top: -80px; inset-inline-start: 16px; background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 8px; font-weight: 700; z-index: 20; }
+.skip:focus { top: 16px; }
+
+/* ---------- top bar ---------- */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: color-mix(in srgb, var(--paper) 85%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--rule); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 11; background: var(--paper); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; }
+.logo svg { width: 30px; height: 30px; }
+.top nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 22px; flex-wrap: wrap; }
+.top nav a { text-decoration: none; color: var(--ink-2); font-weight: 600; }
+.top nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+
+/* ---------- hero ---------- */
+.hero .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; padding-block: 64px 48px; }
+.kicker { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: var(--focus-ink); font-size: 0.95rem; letter-spacing: 0.02em; }
+.kicker::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--focus); box-shadow: 0 0 0 4px var(--focus-soft); }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(3.4rem, 8.5vw, 6.6rem); line-height: 0.92; letter-spacing: 0.005em; margin: 18px 0 20px; }
+h1 em { font-style: normal; color: var(--focus-ink); }
+.lede { font-size: 1.25rem; color: var(--ink-2); max-width: 34rem; margin: 0 0 28px; }
+.cta { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 12px; font-weight: 700; text-decoration: none; border: 2px solid var(--ink); transition: transform .15s ease; }
+.btn:hover { transform: translateY(-1px); }
+.btn-ink { background: var(--ink); color: var(--paper); }
+.btn-ghost { background: transparent; color: var(--ink); }
+.btn svg { width: 18px; height: 18px; }
+.meta { margin: 16px 0 0; color: var(--ink-2); font-size: 0.95rem; display: flex; gap: 14px; flex-wrap: wrap; }
+.meta span::before { content: "•"; margin-inline-end: 8px; color: var(--focus); }
+.meta span:first-child::before { content: none; }
+
+/* mock browser scan */
+.scan { position: relative; background: var(--panel); border: 1px solid var(--rule); border-radius: 16px; box-shadow: 0 30px 60px -30px rgba(15,22,38,.35); overflow: hidden; }
+.scan .bar { display: flex; gap: 6px; padding: 12px 14px; border-bottom: 1px solid var(--rule); background: var(--paper-2); direction: ltr; }
+.scan .bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--rule); }
+.scan .bar .url { margin-inline-start: 10px; flex: 1; height: 10px; border-radius: 5px; background: var(--rule); }
 .scan svg { display: block; width: 100%; height: auto; }
-.sweep { position: absolute; inset-inline: 0; top: 42px; height: 2px; background: var(--accent); box-shadow: 0 0 14px 2px color-mix(in srgb, var(--accent) 45%, transparent); animation: sweep 5.5s ease-in-out infinite; }
-@keyframes sweep { 0% { transform: translateY(0); opacity: 0 } 10% { opacity: .9 } 90% { opacity: .9 } 100% { transform: translateY(370px); opacity: 0 } }
-.flag { position: absolute; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 500; white-space: nowrap; animation: pop .45s ease both; }
-.flag::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-.flag.crit { color: var(--crit); background: var(--crit-soft); }
-.flag.warn { color: var(--warn); background: var(--warn-soft); }
-.flag.ok { color: var(--ok); background: var(--ok-soft); }
-@keyframes pop { from { transform: scale(.88) } to { transform: scale(1) } }
-.flag:nth-of-type(2) { animation-delay: .12s } .flag:nth-of-type(3) { animation-delay: .24s } .flag:nth-of-type(4) { animation-delay: .36s } .flag:nth-of-type(5) { animation-delay: .48s }
-.ring { stroke: var(--focus); stroke-width: 2.5; fill: none; stroke-dasharray: 6 4; animation: ring 1.4s linear infinite; }
+.scan .sweep { position: absolute; inset-inline: 0; top: 44px; height: 3px; background: linear-gradient(90deg, transparent, var(--focus), transparent); box-shadow: 0 0 18px 4px color-mix(in srgb, var(--focus) 55%, transparent); animation: sweep 5s ease-in-out infinite; }
+@keyframes sweep { 0% { transform: translateY(0); opacity: 0 } 8% { opacity: 1 } 92% { opacity: 1 } 100% { transform: translateY(380px); opacity: 0 } }
+.flag { position: absolute; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; border: 1px solid; animation: pop .5s ease both; }
+.flag::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.flag.crit { color: var(--crit); background: var(--crit-soft); border-color: color-mix(in srgb, var(--crit) 35%, transparent); }
+.flag.warn { color: var(--warn); background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 35%, transparent); }
+.flag.ok   { color: var(--ok);   background: var(--ok-soft);   border-color: color-mix(in srgb, var(--ok) 35%, transparent); }
+@keyframes pop { from { transform: scale(.85) } to { transform: scale(1) } }
+.flag:nth-of-type(2) { animation-delay: .15s } .flag:nth-of-type(3) { animation-delay: .3s } .flag:nth-of-type(4) { animation-delay: .45s } .flag:nth-of-type(5) { animation-delay: .6s }
+.scan .ring { stroke: var(--focus); stroke-width: 3; fill: none; stroke-dasharray: 6 4; animation: ring 1.2s linear infinite; }
 @keyframes ring { to { stroke-dashoffset: -20 } }
+@media (prefers-reduced-motion: reduce) {
+  .scan .sweep { display: none } .flag { animation: none } .scan .ring { animation: none } .btn { transition: none } html { scroll-behavior: auto }
+}
+
+/* ---------- sections ---------- */
+section { padding-block: 72px; border-top: 1px solid var(--rule); }
+.sec-head { display: grid; grid-template-columns: auto 1fr; gap: 20px 28px; align-items: end; margin-bottom: 40px; }
+.sec-num { font-family: var(--display); font-size: 4rem; line-height: 0.8; color: var(--focus); font-weight: 700; }
+h2 { font-family: var(--display); font-weight: 700; font-size: clamp(2.2rem, 4.5vw, 3.4rem); line-height: 0.95; }
+.sec-head p { grid-column: 2; margin: 0; color: var(--ink-2); max-width: 40rem; font-size: 1.1rem; }
 
 /* fix vs suggest */
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.split h3 { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.suggest { margin: 16px 0 0; background: var(--surface); border-radius: 10px; padding: 16px 18px; font-size: 0.95rem; }
-.suggest dt { font-weight: 500; margin-top: 12px; } .suggest dt:first-child { margin-top: 0; }
-.suggest dd { margin: 2px 0 0; color: var(--ink-2); }
+.panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 16px; padding: 26px; min-width: 0; }
+.panel h3 { font-size: 1.35rem; font-weight: 700; display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.pill { font-size: 0.8rem; padding: 3px 10px; border-radius: 999px; font-weight: 700; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); } .pill.warn { background: var(--warn-soft); color: var(--warn); }
+.panel p { color: var(--ink-2); margin: 0 0 16px; }
+pre.diff { direction: ltr; text-align: left; margin: 0; background: var(--code-bg); color: var(--code-fg); border-radius: 10px; padding: 16px 18px; font-size: 0.9rem; line-height: 1.7; overflow-x: auto; }
+.diff .del { color: var(--code-del); } .diff .add { color: var(--code-add); } .diff .cm { opacity: .55; }
+.suggest { direction: rtl; background: var(--paper-2); border-radius: 10px; padding: 16px 18px; font-size: 0.95rem; }
+.suggest dt { font-weight: 700; margin-top: 10px; } .suggest dt:first-child { margin-top: 0 } .suggest dd { margin: 2px 0 0; color: var(--ink-2); }
+.suggest code { background: var(--panel); padding: 1px 6px; border-radius: 4px; direction: ltr; unicode-bidi: isolate; font-size: 0.9em; }
 
-/* checks */
-.checks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--rule); border-inline-start: 1px solid var(--rule); }
-.checks li { display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: start; padding: 20px; border-bottom: 1px solid var(--rule); border-inline-end: 1px solid var(--rule); min-width: 0; }
-.checks svg { width: 40px; height: 40px; }
-.checks b { display: block; font-weight: 500; line-height: 1.35; }
-.checks small { display: block; color: var(--ink-2); font-size: 0.88rem; margin-top: 3px; line-height: 1.5; }
-.checks .tag { margin-top: 8px; }
+/* checks grid */
+.checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; list-style: none; padding: 0; margin: 0; }
+.checks li { background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; padding: 18px; display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: start; min-width: 0; }
+.checks svg { width: 44px; height: 44px; }
+.checks b { display: block; font-size: 1.05rem; line-height: 1.3; }
+.checks small { display: block; color: var(--ink-2); margin-top: 4px; font-size: 0.88rem; }
+.checks .tag { display: inline-block; margin-top: 8px; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+.tag.ok { background: var(--ok-soft); color: var(--ok); } .tag.warn { background: var(--warn-soft); color: var(--warn); } .tag.law { background: var(--focus-soft); color: var(--focus-ink); }
 
-/* contrast meter */
-.tool { display: grid; grid-template-columns: 1fr 1.1fr; gap: 20px; }
+/* contrast tool */
+.tool { display: grid; grid-template-columns: 1fr 1.1fr; gap: 24px; align-items: stretch; }
 .tool .panel { display: grid; gap: 16px; align-content: start; }
 .field { display: grid; gap: 6px; }
-.field label { font-weight: 500; font-size: 0.95rem; }
-.field .row { display: flex; gap: 10px; }
-.field input[type="color"] { width: 46px; height: 40px; padding: 2px; border: 1px solid var(--rule); border-radius: 8px; background: var(--bg); cursor: pointer; }
-.field input[type="text"] { flex: 1; min-width: 0; padding: 8px 12px; font: 1rem var(--mono); direction: ltr; border: 1px solid var(--rule); border-radius: 8px; background: var(--bg); color: var(--ink); }
-.ratio { display: flex; align-items: baseline; justify-content: flex-end; gap: 8px; direction: ltr; }
-.ratio b { font-size: 2.8rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
-.ratio span { color: var(--ink-2); }
-.meter { height: 8px; border-radius: 4px; background: var(--surface); position: relative; overflow: hidden; }
-.meter i { position: absolute; inset-block: 0; inset-inline-start: 0; background: var(--accent); border-radius: 4px; transition: width .25s ease; }
-.marks { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.field label { font-weight: 700; font-size: 0.95rem; }
+.field .row { display: flex; gap: 10px; align-items: center; }
+.field input[type="color"] { width: 48px; height: 40px; border: 1px solid var(--rule); border-radius: 8px; padding: 2px; background: var(--panel); cursor: pointer; }
+.field input[type="text"] { flex: 1; min-width: 0; font-family: var(--mono); font-size: 1rem; padding: 9px 12px; border: 1px solid var(--rule); border-radius: 8px; background: var(--paper); color: var(--ink); direction: ltr; }
+.preview { border-radius: 16px; border: 1px solid var(--rule); padding: 28px; display: grid; gap: 14px; align-content: center; min-width: 0; }
+.preview .big { font-family: var(--display); font-size: 3.2rem; line-height: 1; font-weight: 700; }
+.preview .small { font-size: 1rem; }
+.ratio { display: flex; align-items: baseline; gap: 10px; margin-top: 10px; direction: ltr; justify-content: flex-end; }
+.ratio b { font-family: var(--display); font-size: 3.6rem; line-height: 1; font-variant-numeric: tabular-nums; }
 .verdicts { display: flex; gap: 8px; flex-wrap: wrap; }
-.verdict { font-size: 0.82rem; font-weight: 500; padding: 4px 10px; border-radius: 999px; }
-.verdict.pass { background: var(--ok-soft); color: var(--ok); }
-.verdict.fail { background: var(--crit-soft); color: var(--crit); }
-.preview { border-radius: 14px; border: 1px solid var(--rule); padding: 28px; display: grid; gap: 12px; align-content: center; min-width: 0; }
-.preview .big { font-size: 2.4rem; font-weight: 700; line-height: 1.1; }
+.verdict { font-size: 0.85rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--rule); }
+.verdict.pass { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+.verdict.fail { background: var(--crit-soft); color: var(--crit); border-color: transparent; }
+.meter { height: 10px; border-radius: 5px; background: var(--paper-2); position: relative; overflow: hidden; }
+.meter i { position: absolute; inset-block: 0; inset-inline-start: 0; border-radius: 5px; background: var(--focus); transition: width .3s ease; }
+.meter-marks { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 
-/* law */
-.law { display: grid; grid-template-columns: 170px 1fr; gap: 40px; align-items: center; }
-.law svg { width: 170px; height: 170px; max-width: 100%; }
-.law .text { display: grid; gap: 14px; color: var(--ink-2); max-width: 40rem; }
-.law strong { color: var(--ink); font-weight: 500; }
+/* install */
+.install { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.install ol { margin: 0; padding-inline-start: 22px; color: var(--ink-2); }
+.install li + li { margin-top: 8px; }
+pre.sh { direction: ltr; text-align: left; margin: 12px 0 0; background: var(--code-bg); color: var(--code-fg); border-radius: 10px; padding: 14px 16px; font-size: 0.88rem; line-height: 1.7; overflow-x: auto; }
+.prompts { list-style: none; margin: 24px 0 0; padding: 0; display: grid; gap: 10px; }
+.prompts li { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 18px; position: relative; padding-inline-start: 46px; }
+.prompts li::before { content: "›"; position: absolute; inset-inline-start: 18px; top: 8px; font-size: 1.6rem; color: var(--focus); font-weight: 700; }
 
-.next { background: var(--surface); }
-.next .wrap { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
-.next p { color: var(--ink-2); margin-top: 6px; }
+.install.three { grid-template-columns: repeat(3, 1fr); }
+.install .panel p code { background: var(--paper-2); padding: 1px 6px; border-radius: 4px; direction: ltr; unicode-bidi: isolate; font-size: 0.9em; }
 
-@media (max-width: 900px) { .checks { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 820px) {
-  .hero .wrap { grid-template-columns: 1fr; gap: 36px; padding-block: 44px 40px; }
-  .split, .tool { grid-template-columns: 1fr; }
-  .law { grid-template-columns: 1fr; justify-items: start; }
+/* send to your agent */
+.sendbox { background: var(--panel); border: 1px solid var(--rule); border-radius: 16px; padding: 22px; display: grid; gap: 12px; }
+.sendbox-label { font-weight: 700; font-size: 0.95rem; }
+.sendbox textarea { width: 100%; direction: ltr; text-align: left; font-family: var(--mono); font-size: 0.88rem; line-height: 1.6; padding: 14px 16px; border: 1px solid var(--rule); border-radius: 10px; background: var(--paper); color: var(--ink); resize: vertical; }
+.sendbox-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.sendbox-status { color: var(--ok); font-weight: 700; min-height: 1.4em; }
+.sendbox-link { color: var(--ink-2); font-weight: 600; margin-inline-start: auto; }
+
+/* law stamp */
+.law { display: grid; grid-template-columns: 180px 1fr; gap: 32px; align-items: center; background: var(--panel); border: 1px solid var(--rule); border-radius: 18px; padding: 32px; }
+.law svg { width: 180px; height: 180px; max-width: 100%; }
+.law p { margin: 0 0 12px; color: var(--ink-2); } .law p:last-child { margin: 0; }
+.law strong { color: var(--ink); }
+
+footer { border-top: 1px solid var(--rule); padding-block: 36px 56px; color: var(--ink-2); font-size: 0.95rem; }
+footer .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+footer h2 { font-size: 1.6rem; margin-bottom: 8px; color: var(--ink); }
+footer p { margin: 0 0 8px; }
+
+@media (max-width: 860px) {
+  .hero .wrap { grid-template-columns: 1fr; gap: 36px; padding-block: 44px 36px; }
+  .split, .tool, .install, .install.three, footer .wrap { grid-template-columns: 1fr; }
+  .law { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+  .sec-head { grid-template-columns: 1fr; } .sec-head p { grid-column: 1; }
+  .top .wrap { flex-direction: column; align-items: flex-start; }
+  .btn { width: 100%; justify-content: center; }
 }
-@media (max-width: 560px) { .checks { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -122,17 +241,18 @@
 
 <header class="top">
   <div class="wrap">
-    <a class="logo" href="index.html">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="3" width="26" height="26" rx="8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-dasharray="7 4"/><circle cx="16" cy="16" r="4.5" fill="var(--focus)"/></svg>
+    <a class="logo" href="#main" aria-label="בודק נגישות ישראלי, לראש העמוד">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="3" width="26" height="26" rx="8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-dasharray="7 4"/><circle cx="16" cy="16" r="5" fill="var(--focus)"/></svg>
       <span>בודק נגישות ישראלי</span>
     </a>
     <nav aria-label="ניווט ראשי">
       <ul>
-        <li><a href="index.html" aria-current="page">אודות</a></li>
+        <li><a href="#how">איך זה עובד</a></li>
         <li><a href="#checks">מה נבדק</a></li>
         <li><a href="#contrast">מד ניגודיות</a></li>
+        <li><a href="#install">התקנה</a></li>
+        <li><a href="#ai">לסוכן שלכם</a></li>
         <li><a href="#law">החוק</a></li>
-        <li><a class="nav-cta" href="install.html">התקנה</a></li>
       </ul>
     </nav>
   </div>
@@ -142,51 +262,46 @@
   <div class="hero">
     <div class="wrap">
       <div>
-        <p class="eyebrow">סקיל קוד פתוח לסוכני AI</p>
-        <h1>בדיקת נגישות לפי תקן ישראלי 5568, ישירות על הקוד שלכם</h1>
+        <span class="kicker">סקיל קוד פתוח ל-Claude, Codex וכל סוכן AI</span>
+        <h1>האתר שלך<br><em>עומד בחוק</em><br>הנגישות?</h1>
         <p class="lede">
-          הסקיל סורק את הפרויקט, מסמן כל בעיה עם קובץ ושורה, מתקן בעצמו את מה שיש לו תשובה
-          אחת נכונה, ומשאיר לכם הצעה מדויקת לכל השאר.
+          הסקיל סורק את הקוד לפי תקן ישראלי 5568, מסמן כל בעיה עם קובץ ושורה,
+          מתקן בעצמו את מה שיש לו תשובה אחת נכונה, ומציע פתרון מדויק לכל השאר.
         </p>
         <div class="cta">
-          <a class="btn btn-primary" href="install.html">
-            להתקנה
-            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+          <a class="btn btn-ink" href="https://github.com/jordanhemo/il-accessibility-audit/raw/main/dist/il-accessibility-audit.zip">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+            הורדת הסקיל
           </a>
-          <a class="btn btn-plain" href="https://github.com/jordanhemo/il-accessibility-audit">הקוד ב-GitHub</a>
+          <a class="btn btn-ghost" href="https://github.com/jordanhemo/il-accessibility-audit">הקוד ב-GitHub</a>
         </div>
-        <ul class="facts">
-          <li>Claude, Codex וכל סוכן</li>
-          <li>HTML, React, Vue, Svelte</li>
-          <li>Python 3 בלבד</li>
-          <li>רישיון MIT</li>
-        </ul>
+        <p class="meta"><span>HTML / CSS / JS</span><span>React / Next.js</span><span>Vue</span><span>Svelte</span><span>Python 3 בלבד</span></p>
       </div>
 
       <div class="scan" role="img" aria-label="הדמיה של סריקת עמוד: סמנים מציינים תמונה ללא טקסט חלופי, שדה ללא תווית, ניגודיות נמוכה, ושני תיקונים שבוצעו">
-        <div class="bar"><i></i><i></i><i></i><span></span></div>
+        <div class="bar"><i></i><i></i><i></i><span class="url"></span></div>
         <svg viewBox="0 0 520 380" aria-hidden="true">
-          <rect width="520" height="380" fill="var(--bg)"/>
-          <rect x="40" y="28" width="440" height="22" rx="4" fill="var(--shape)"/>
-          <rect x="40" y="62" width="300" height="11" rx="3" fill="var(--shape)"/>
-          <rect x="40" y="82" width="340" height="11" rx="3" fill="var(--shape)"/>
-          <rect x="40" y="102" width="220" height="11" rx="3" fill="var(--shape)"/>
-          <rect x="40" y="140" width="200" height="120" rx="8" fill="var(--surface)" stroke="var(--rule)"/>
-          <path d="M60 240l45-55 35 40 25-28 35 43z" fill="var(--shape-2)"/>
-          <circle cx="200" cy="170" r="12" fill="var(--shape-2)"/>
-          <rect x="268" y="140" width="212" height="11" rx="3" fill="var(--shape)"/>
-          <rect x="268" y="160" width="190" height="11" rx="3" fill="var(--shape)"/>
-          <rect x="268" y="196" width="212" height="34" rx="6" fill="var(--bg)" stroke="var(--shape-2)"/>
-          <rect x="268" y="236" width="120" height="26" rx="6" fill="var(--shape-2)"/>
-          <rect x="40" y="290" width="440" height="50" rx="8" fill="#a3aab6"/>
-          <rect x="60" y="308" width="170" height="13" rx="3" fill="#b8bec8"/>
+          <rect x="0" y="0" width="520" height="380" fill="var(--panel)"/>
+          <rect x="40" y="28" width="440" height="22" rx="4" fill="var(--paper-2)"/>
+          <rect x="40" y="62" width="300" height="12" rx="3" fill="var(--rule)"/>
+          <rect x="40" y="82" width="340" height="12" rx="3" fill="var(--rule)"/>
+          <rect x="40" y="102" width="220" height="12" rx="3" fill="var(--rule)"/>
+          <rect x="40" y="140" width="200" height="120" rx="8" fill="var(--paper-2)"/>
+          <path d="M60 240l45-55 35 40 25-28 35 43z" fill="var(--rule)"/>
+          <circle cx="200" cy="170" r="12" fill="var(--rule)"/>
+          <rect x="268" y="140" width="212" height="12" rx="3" fill="var(--rule)"/>
+          <rect x="268" y="160" width="190" height="12" rx="3" fill="var(--rule)"/>
+          <rect x="268" y="196" width="212" height="34" rx="6" fill="var(--paper-2)" stroke="var(--rule)"/>
+          <rect x="268" y="236" width="120" height="26" rx="6" fill="var(--rule)"/>
+          <rect x="40" y="290" width="440" height="50" rx="8" fill="#9aa3b2"/>
+          <rect x="60" y="308" width="170" height="14" rx="3" fill="#b4bcc9"/>
           <rect x="268" y="196" width="212" height="34" rx="6" class="ring"/>
         </svg>
         <span class="sweep" aria-hidden="true"></span>
-        <span class="flag crit" style="top:148px; inset-inline-start:30px">תמונה בלי alt</span>
+        <span class="flag crit" style="top:150px; inset-inline-start:30px">תמונה בלי alt</span>
         <span class="flag crit" style="top:222px; inset-inline-end:28px">שדה בלי label</span>
-        <span class="flag warn" style="top:336px; inset-inline-start:40px">ניגודיות 1.6:1</span>
-        <span class="flag ok" style="top:54px; inset-inline-end:28px">נוסף lang="he" dir="rtl"</span>
+        <span class="flag warn" style="top:338px; inset-inline-start:40px">ניגודיות 1.6:1</span>
+        <span class="flag ok" style="top:56px; inset-inline-end:28px">נוסף lang="he" dir="rtl"</span>
         <span class="flag ok" style="top:270px; inset-inline-end:150px">tabindex תוקן</span>
       </div>
     </div>
@@ -195,14 +310,15 @@
   <section id="how" aria-labelledby="how-t">
     <div class="wrap">
       <div class="sec-head">
-        <h2 id="how-t">מתקן מה שבטוח, מציע מה שלא</h2>
-        <p>הסקיל מבדיל בין ממצא שיש לו תיקון אחד נכון לבין ממצא שדורש שיקול דעת. הוא לא ממציא טקסט חלופי ולא משנה צבעי מותג על דעת עצמו.</p>
+        <span class="sec-num" aria-hidden="true">01</span>
+        <h2 id="how-t">מתקן מה שבטוח. מציע מה שלא.</h2>
+        <p>הסקיל מבדיל בין ממצא שיש לו תיקון אחד נכון לבין ממצא שדורש שיקול דעת. הוא לא ממציא טקסט חלופי ולא מחליף צבעי מותג על דעת עצמו.</p>
       </div>
       <div class="split">
         <div class="panel">
           <h3>תיקון אוטומטי <span class="pill ok">מיושם בקוד</span></h3>
-          <p>כשהתשובה ידועה מראש, הקובץ נערך והדוח מסמן שהבעיה טופלה.</p>
-<pre class="code" aria-label="דוגמת שינוי שהסקיל מבצע"><span class="cm">index.html</span>
+          <p>כשהתשובה ידועה מראש, Claude עורך את הקובץ ומסמן בדוח שהבעיה טופלה.</p>
+<pre class="diff" aria-label="דוגמת diff של תיקון אוטומטי"><span class="cm">index.html</span>
 <span class="del">- &lt;html&gt;</span>
 <span class="add">+ &lt;html lang="he" dir="rtl"&gt;</span>
 
@@ -212,12 +328,12 @@
         </div>
         <div class="panel">
           <h3>הצעת פתרון <span class="pill warn">דורש החלטה</span></h3>
-          <p>כשצריך תוכן או עיצוב, הדוח מביא את המיקום המדויק ואת הצעד הבא.</p>
+          <p>כשצריך תוכן או עיצוב, הדוח מביא את המיקום המדויק ואת הצעד הבא, בלי לנחש.</p>
           <dl class="suggest">
             <dt><code>Hero.jsx:5</code> תמונה ללא טקסט חלופי</dt>
             <dd>להוסיף <code>alt</code> עם תיאור עברי קצר. אם התמונה דקורטיבית בלבד, <code>alt=""</code>.</dd>
             <dt><code>style.css:12</code> ניגודיות 1.27:1</dt>
-            <dd>נדרש 4.5:1 לטקסט רגיל. להכהות את הטקסט או להבהיר את הרקע.</dd>
+            <dd>נדרש 4.5:1 לטקסט רגיל. להכהות את הטקסט או להבהיר את הרקע, ולאמת במד הניגודיות.</dd>
             <dt>הצהרת נגישות לא נמצאה</dt>
             <dd>חובה חוקית. הסקיל מספק תבנית, ואת פרטי רכז הנגישות משלימים בעצמכם.</dd>
           </dl>
@@ -229,56 +345,57 @@
   <section id="checks" aria-labelledby="checks-t">
     <div class="wrap">
       <div class="sec-head">
+        <span class="sec-num" aria-hidden="true">02</span>
         <h2 id="checks-t">שתים עשרה בדיקות</h2>
         <p>קריטריוני WCAG 2.0/2.1 ברמת AA שעליהם מבוסס ת"י 5568, ועוד שתי דרישות שקיימות רק בישראל.</p>
       </div>
       <ul class="checks">
         <li>
-          <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="3" y="5" width="34" height="30" rx="6" fill="none" stroke="var(--ink)" stroke-width="1.6"/><text x="20" y="25" text-anchor="middle" font-family="var(--mono)" font-size="12" font-weight="500" fill="var(--ink)">he</text><circle cx="33" cy="8" r="4" fill="var(--accent)"/></svg>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="4" y="6" width="36" height="32" rx="6" fill="var(--paper-2)" stroke="var(--rule)"/><text x="22" y="30" text-anchor="middle" font-family="var(--mono)" font-size="15" font-weight="700" fill="var(--ink)">he</text><path d="M30 12h6m0 0l-3-3m3 3l-3 3" stroke="var(--focus)" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
           <div><b>שפת העמוד</b><small><code>lang="he"</code> בתג html. WCAG 3.1.1</small><span class="tag ok">תיקון אוטומטי</span></div>
         </li>
         <li>
-          <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="3" y="3" width="34" height="34" rx="8" fill="none" stroke="var(--ink)" stroke-width="1.6"/><path d="M30 20H11m0 0l6-6m-6 6l6 6" stroke="var(--accent)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M36 22H10m0 0l8-8m-8 8l8 8" stroke="var(--focus)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="4" y="4" width="36" height="36" rx="8" fill="none" stroke="var(--rule)"/></svg>
           <div><b>כיווניות מימין לשמאל</b><small><code>dir="rtl"</code> לעמוד עברי. דרישה ישראלית</small><span class="tag ok">תיקון אוטומטי</span></div>
         </li>
         <li>
-          <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="11" width="30" height="19" rx="4" fill="none" stroke="var(--ink)" stroke-width="1.6"/><text x="19" y="24.5" text-anchor="middle" font-family="var(--mono)" font-size="9" font-weight="500" fill="var(--ink)">TAB</text><circle cx="33" cy="10" r="4" fill="var(--accent)"/></svg>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="12" width="32" height="20" rx="4" fill="var(--paper-2)" stroke="var(--rule)"/><text x="22" y="27" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="700" fill="var(--ink)">TAB</text><circle cx="36" cy="12" r="5" fill="var(--focus)"/></svg>
           <div><b>סדר מעבר במקלדת</b><small><code>tabindex</code> חיובי ששובר את הסדר. WCAG 2.4.3</small><span class="tag ok">תיקון אוטומטי</span></div>
         </li>
         <li>
-          <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="7" y="3" width="24" height="33" rx="3" fill="none" stroke="var(--ink)" stroke-width="1.6"/><path d="M12 11h14M12 16h14M12 21h8" stroke="var(--shape-2)" stroke-width="1.6"/><circle cx="27" cy="28" r="6.5" fill="var(--bg)" stroke="var(--accent)" stroke-width="2"/><path d="M24.3 28l1.9 1.9 3.5-3.6" stroke="var(--accent)" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-          <div><b>הצהרת נגישות</b><small>קיימת ומקושרת מכל עמוד. תקנות 2013</small><span class="tag law-tag">חובה חוקית</span></div>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="8" y="4" width="28" height="36" rx="3" fill="var(--paper-2)" stroke="var(--rule)"/><path d="M14 14h16M14 20h16M14 26h10" stroke="var(--rule)" stroke-width="2"/><circle cx="30" cy="31" r="7" fill="none" stroke="var(--focus)" stroke-width="2.2"/><path d="M27 31l2 2 4-4" stroke="var(--focus)" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+          <div><b>הצהרת נגישות</b><small>קיימת ומקושרת מכל עמוד. תקנות 2013</small><span class="tag law">חובה חוקית</span></div>
         </li>
         <li>
-          <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="3" y="6" width="34" height="27" rx="4" fill="none" stroke="var(--ink)" stroke-width="1.6"/><path d="M7 29l8-10 6 7 4-4 6 7z" fill="var(--shape-2)"/><circle cx="28" cy="14" r="2.6" fill="var(--shape-2)"/><rect x="21" y="27" width="17" height="10" rx="3" fill="var(--accent)"/><text x="29.5" y="34.4" text-anchor="middle" font-family="var(--mono)" font-size="7" font-weight="500" fill="var(--accent-ink)">alt</text></svg>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="5" y="8" width="34" height="28" rx="4" fill="var(--paper-2)" stroke="var(--rule)"/><path d="M9 32l9-11 7 8 5-5 6 8z" fill="var(--rule)"/><circle cx="30" cy="16" r="3" fill="var(--rule)"/><rect x="24" y="28" width="16" height="10" rx="3" fill="var(--focus)"/><text x="32" y="36" text-anchor="middle" font-family="var(--mono)" font-size="7.5" font-weight="700" fill="#1a1a1a">alt</text></svg>
           <div><b>טקסט חלופי לתמונות</b><small>חסר, או ריק על תמונה שאינה דקורטיבית. WCAG 1.1.1</small><span class="tag warn">הצעת פתרון</span></div>
         </li>
         <li>
-          <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="7" width="16" height="6" rx="2" fill="var(--accent)"/><rect x="4" y="18" width="32" height="15" rx="4" fill="none" stroke="var(--ink)" stroke-width="1.6"/><path d="M9 25.5h12" stroke="var(--shape-2)" stroke-width="1.6"/></svg>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="20" width="32" height="16" rx="4" fill="var(--paper-2)" stroke="var(--rule)"/><rect x="6" y="8" width="18" height="7" rx="2" fill="var(--focus)"/><path d="M12 28h14" stroke="var(--rule)" stroke-width="2"/></svg>
           <div><b>תוויות לשדות טופס</b><small><code>label</code> או <code>aria-label</code> לכל קלט. WCAG 1.3.1, 4.1.2</small><span class="tag warn">הצעת פתרון</span></div>
         </li>
         <li>
-          <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="var(--ink)" stroke-width="1.6"/><path d="M20 5a15 15 0 010 30z" fill="var(--ink)"/></svg>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="16" fill="var(--paper-2)" stroke="var(--rule)"/><path d="M22 6a16 16 0 010 32z" fill="var(--ink)"/><path d="M22 6a16 16 0 000 32" fill="none"/></svg>
           <div><b>ניגודיות צבעים</b><small>חישוב יחס אמיתי מול 4.5:1 ו-3:1. WCAG 1.4.3</small><span class="tag warn">הצעת פתרון</span></div>
         </li>
         <li>
-          <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="3" y="12" width="34" height="16" rx="8" fill="none" stroke="var(--ink)" stroke-width="1.6"/><circle cx="12" cy="20" r="3" fill="var(--shape-2)"/><path d="M19 20h11" stroke="var(--accent)" stroke-width="2.2" stroke-dasharray="2 3" stroke-linecap="round"/></svg>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="14" width="32" height="16" rx="8" fill="var(--paper-2)" stroke="var(--rule)"/><circle cx="14" cy="22" r="3" fill="var(--rule)"/><path d="M22 22h10" stroke="var(--focus)" stroke-width="2.5" stroke-dasharray="2 3" stroke-linecap="round"/></svg>
           <div><b>קישורים וכפתורים ריקים</b><small>אייקון בלי שם נגיש. WCAG 2.4.4, 4.1.2</small><span class="tag warn">הצעת פתרון</span></div>
         </li>
         <li>
-          <svg viewBox="0 0 40 40" aria-hidden="true"><text x="3" y="13" font-family="var(--font)" font-size="12" font-weight="700" fill="var(--ink)">H1</text><text x="11" y="24" font-family="var(--font)" font-size="10.5" font-weight="700" fill="var(--ink-2)">H2</text><text x="19" y="36" font-family="var(--font)" font-size="10" font-weight="700" fill="var(--accent)">H4?</text></svg>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><text x="6" y="16" font-family="var(--display)" font-size="14" font-weight="700" fill="var(--ink)">H1</text><text x="14" y="27" font-family="var(--display)" font-size="12" font-weight="700" fill="var(--ink-2)">H2</text><text x="22" y="38" font-family="var(--display)" font-size="11" font-weight="700" fill="var(--focus)">H4?</text></svg>
           <div><b>היררכיית כותרות</b><small>דילוגים, h1 חסר או כפול. WCAG 1.3.1</small><span class="tag warn">הצעת פתרון</span></div>
         </li>
         <li>
-          <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="4" width="32" height="7" rx="2" fill="var(--shape-2)"/><rect x="4" y="15" width="32" height="21" rx="3" fill="none" stroke="var(--ink)" stroke-width="1.6"/><path d="M20 7v17m0 0l-5-5m5 5l5-5" stroke="var(--accent)" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="6" width="32" height="8" rx="2" fill="var(--rule)"/><rect x="6" y="18" width="32" height="20" rx="2" fill="var(--paper-2)" stroke="var(--rule)"/><path d="M22 8v18m0 0l-5-5m5 5l5-5" stroke="var(--focus)" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>
           <div><b>קישור דילוג לתוכן</b><small>מעקף לניווט בראש העמוד. WCAG 2.4.1</small><span class="tag warn">הצעת פתרון</span></div>
         </li>
         <li>
-          <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="3" y="11" width="34" height="19" rx="5" fill="none" stroke="var(--ink)" stroke-width="1.6"/><text x="20" y="24" text-anchor="middle" font-family="var(--mono)" font-size="8" font-weight="500" fill="var(--ink)">role=?</text><circle cx="33" cy="10" r="4" fill="var(--accent)"/></svg>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="5" y="12" width="34" height="20" rx="5" fill="var(--paper-2)" stroke="var(--rule)"/><text x="22" y="26" text-anchor="middle" font-family="var(--mono)" font-size="9" font-weight="700" fill="var(--ink)">role=?</text><circle cx="36" cy="12" r="5" fill="var(--focus)"/></svg>
           <div><b>תפקידי ARIA</b><small>ערך <code>role</code> שאינו קיים בתקן. WCAG 4.1.2</small><span class="tag warn">הצעת פתרון</span></div>
         </li>
         <li>
-          <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="3" y="8" width="34" height="24" rx="4" fill="none" stroke="var(--ink)" stroke-width="1.6"/><path d="M16 14v12l9-6z" fill="var(--ink)"/><path d="M28 12l7 7m0-7l-7 7" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round"/></svg>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="5" y="9" width="34" height="26" rx="4" fill="var(--paper-2)" stroke="var(--rule)"/><path d="M18 16v12l10-6z" fill="var(--ink)"/><path d="M30 14l8 8m0-8l-8 8" stroke="var(--focus)" stroke-width="2.5" stroke-linecap="round"/></svg>
           <div><b>מדיה שמתנגנת לבד</b><small><code>autoplay</code> בלי השתקה. WCAG 1.4.2</small><span class="tag warn">הצעת פתרון</span></div>
         </li>
       </ul>
@@ -288,6 +405,7 @@
   <section id="contrast" aria-labelledby="contrast-t">
     <div class="wrap">
       <div class="sec-head">
+        <span class="sec-num" aria-hidden="true">03</span>
         <h2 id="contrast-t">מד ניגודיות</h2>
         <p>אותה נוסחה שהסורק מריץ על ה-CSS שלכם. בחרו צבע טקסט ורקע וראו אם הזוג עובר את הסף.</p>
       </div>
@@ -295,24 +413,87 @@
         <div class="panel">
           <div class="field">
             <label for="fg-hex">צבע טקסט</label>
-            <div class="row"><input type="color" id="fg-pick" value="#777777" aria-label="בחירת צבע טקסט"><input type="text" id="fg-hex" value="#777777" spellcheck="false" maxlength="7"></div>
+            <div class="row"><input type="color" id="fg-pick" value="#777777" aria-label="בחירת צבע טקסט"><input type="text" id="fg-hex" value="#777777" spellcheck="false" inputmode="text" maxlength="7"></div>
           </div>
           <div class="field">
             <label for="bg-hex">צבע רקע</label>
-            <div class="row"><input type="color" id="bg-pick" value="#ffffff" aria-label="בחירת צבע רקע"><input type="text" id="bg-hex" value="#ffffff" spellcheck="false" maxlength="7"></div>
+            <div class="row"><input type="color" id="bg-pick" value="#888888" aria-label="בחירת צבע רקע"><input type="text" id="bg-hex" value="#888888" spellcheck="false" inputmode="text" maxlength="7"></div>
           </div>
-          <div class="ratio" aria-live="polite"><b id="ratio">4.48</b><span>: 1</span></div>
-          <div class="meter" aria-hidden="true"><i id="meter" style="width:49%"></i></div>
-          <div class="marks" aria-hidden="true"><span>1</span><span>3</span><span>4.5</span><span>7</span><span>21</span></div>
+          <div class="ratio" aria-live="polite"><b id="ratio">1.13</b><span>: 1</span></div>
+          <div class="meter" aria-hidden="true"><i id="meter" style="width:5%"></i></div>
+          <div class="meter-marks" aria-hidden="true"><span>1</span><span>3</span><span>4.5</span><span>7</span><span>21</span></div>
           <div class="verdicts" id="verdicts">
             <span class="verdict fail">טקסט רגיל AA (4.5)</span>
-            <span class="verdict pass">טקסט גדול AA (3)</span>
+            <span class="verdict fail">טקסט גדול AA (3)</span>
             <span class="verdict fail">AAA (7)</span>
           </div>
         </div>
-        <div class="preview" id="preview" style="background:#ffffff;color:#777777">
+        <div class="preview" id="preview" style="background:#888888;color:#777777">
           <div class="big">כותרת לדוגמה</div>
-          <p>טקסט רגיל בגודל קריאה. לפי ת"י 5568, טקסט רגיל צריך יחס של 4.5:1 לפחות, וטקסט גדול או מודגש 3:1. האפור הזה נראה סביר, ובכל זאת נכשל.</p>
+          <p class="small" style="margin:0">טקסט רגיל בגודל קריאה. לפי ת"י 5568, טקסט רגיל צריך יחס של 4.5:1 לפחות, וטקסט גדול או מודגש 3:1.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="install" aria-labelledby="install-t">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" aria-hidden="true">04</span>
+        <h2 id="install-t">התקנה בדקה</h2>
+        <p>הסקיל כתוב בפורמט Agent Skills, שנתמך על ידי Claude, Codex CLI וכלים נוספים. כל סוכן אחר יכול להריץ את הסורק ישירות. אין חבילות להתקין, רק Python 3.</p>
+      </div>
+      <div class="install three">
+        <div class="panel">
+          <h3>Claude</h3>
+          <p style="margin:0 0 8px">ב-Claude.ai או באפליקציה: <a href="https://github.com/jordanhemo/il-accessibility-audit/raw/main/dist/il-accessibility-audit.skill">מורידים את קובץ ה-‎.skill</a> ומעלים אותו בהגדרות, בחלק Skills.</p>
+          <p style="margin:0">ב-Claude Code, כפלאגין:</p>
+<pre class="sh">/plugin install il-accessibility-audit \
+  --marketplace jordanhemo/il-accessibility-audit</pre>
+        </div>
+        <div class="panel">
+          <h3>Codex CLI</h3>
+          <p style="margin:0">אותה תיקייה, בתיקיית הסקילים של Codex:</p>
+<pre class="sh">git clone https://github.com/jordanhemo/il-accessibility-audit.git
+mkdir -p ~/.codex/skills
+cp -r il-accessibility-audit/il-accessibility-audit ~/.codex/skills/</pre>
+          <p style="margin:8px 0 0;font-size:.9rem">בגרסאות ישנות: <code>codex --enable skills</code>.</p>
+        </div>
+        <div class="panel">
+          <h3>Cursor, Gemini CLI ואחרים</h3>
+          <p style="margin:0">מעתיקים את התיקייה לפרויקט ומבקשים מהסוכן לקרוא את <code>SKILL.md</code>, או מריצים את הסורק ישירות:</p>
+<pre class="sh">python3 il-accessibility-audit/scripts/scan.py . \
+  --format md --fix --report accessibility-report.md</pre>
+        </div>
+      </div>
+      <ul class="prompts" aria-label="דוגמאות לבקשות">
+        <li>תבדוק אם האתר בתיקייה הזו עומד בתקן הנגישות הישראלי ותתקן מה שאפשר</li>
+        <li>אני צריך דוח נגישות לפי תקן 5568 לפרויקט ה-Next.js שלי</li>
+        <li>חסרה לנו הצהרת נגישות? תכין לי אחת</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="ai" aria-labelledby="ai-t">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-num" aria-hidden="true">05</span>
+        <h2 id="ai-t">שלחו את זה לסוכן שלכם</h2>
+        <p>לא רוצים להתקין בעצמכם? מעתיקים את ההודעה ושולחים אותה ל-AI שאתם עובדים איתו. היא מפנה אותו לדף הוראות שנכתב במיוחד לסוכנים, והוא ידע להמשיך לבד.</p>
+      </div>
+      <div class="sendbox">
+        <label for="agent-msg" class="sendbox-label">הודעה לסוכן (באנגלית, כי כך סוכנים מבינים הוראות הכי מדויק)</label>
+        <textarea id="agent-msg" rows="9" readonly spellcheck="false">Please install and use the "il-accessibility-audit" skill to audit my web project for Israeli accessibility law (Israeli Standard 5568, WCAG 2.0/2.1 AA plus Israeli requirements).
+
+1. Read the agent instructions: https://il-accessibility-site.vercel.app/for-agents.md
+2. Download the skill: https://github.com/jordanhemo/il-accessibility-audit/raw/main/dist/il-accessibility-audit.zip and install it in your skills directory (Claude Code: ~/.claude/skills/, Codex: ~/.codex/skills/, otherwise anywhere in the project).
+3. Run: python3 scripts/scan.py <my project dir> --format md --fix --report accessibility-report.md
+4. Fix only what the tool marks as safe. For alt text, labels, colors and the accessibility statement, ask me instead of guessing.
+5. Summarize the report in Hebrew.</textarea>
+        <div class="sendbox-actions">
+          <button type="button" class="btn btn-ink" id="copy-btn">העתקת ההודעה</button>
+          <span class="sendbox-status" id="copy-status" role="status" aria-live="polite"></span>
+          <a href="/for-agents.md" class="sendbox-link">דף ההוראות לסוכנים</a>
         </div>
       </div>
     </div>
@@ -321,17 +502,18 @@
   <section id="law" aria-labelledby="law-t">
     <div class="wrap">
       <div class="sec-head">
+        <span class="sec-num" aria-hidden="true">06</span>
         <h2 id="law-t">מה החוק דורש</h2>
       </div>
       <div class="law">
-        <svg viewBox="0 0 170 170" aria-hidden="true">
-          <circle cx="85" cy="85" r="80" fill="none" stroke="var(--ink)" stroke-width="2"/>
-          <circle cx="85" cy="85" r="68" fill="none" stroke="var(--accent)" stroke-width="1.4" stroke-dasharray="3 4"/>
-          <text x="85" y="78" text-anchor="middle" font-family="var(--font)" font-weight="700" font-size="34" fill="var(--ink)">ת"י</text>
-          <text x="85" y="114" text-anchor="middle" font-family="var(--font)" font-weight="700" font-size="34" fill="var(--accent)">5568</text>
-          <text x="85" y="137" text-anchor="middle" font-family="var(--font)" font-weight="500" font-size="10.5" fill="var(--ink-2)">WCAG 2.0 / 2.1 · AA</text>
+        <svg viewBox="0 0 180 180" aria-hidden="true">
+          <circle cx="90" cy="90" r="84" fill="none" stroke="var(--focus)" stroke-width="3"/>
+          <circle cx="90" cy="90" r="72" fill="none" stroke="var(--focus)" stroke-width="1.5" stroke-dasharray="3 4"/>
+          <text x="90" y="82" text-anchor="middle" font-family="var(--display)" font-weight="700" font-size="44" fill="var(--ink)">ת"י</text>
+          <text x="90" y="122" text-anchor="middle" font-family="var(--display)" font-weight="700" font-size="40" fill="var(--focus-ink)">5568</text>
+          <text x="90" y="146" text-anchor="middle" font-family="var(--body)" font-weight="700" font-size="11" fill="var(--ink-2)">WCAG 2.0 / 2.1 · AA</text>
         </svg>
-        <div class="text">
+        <div>
           <p><strong>תקנות שוויון זכויות לאנשים עם מוגבלות (התאמות נגישות לשירות), תשע"ג-2013</strong> מחייבות כל אתר שנותן שירות לציבור לעמוד בתקן ישראלי 5568, שהוא הגרסה הישראלית של WCAG ברמת AA.</p>
           <p>מעבר לדרישות הטכניות, החוק מחייב לפרסם <strong>הצהרת נגישות</strong> המקושרת מכל עמוד, ובה רמת ההתאמה, ההתאמות שבוצעו, פרטי רכז הנגישות ותאריך העדכון. נציבות שוויון זכויות רשאית להטיל עיצומים כספיים על אתרים שאינם עומדים בדרישות.</p>
           <p>הסקיל מבצע סריקה סטטית של קוד המקור ומוצא את רוב בעיות המבנה והסימון. הוא אינו רואה תוכן שנוצר בזמן ריצה ואינו מחליף בדיקה של בודק נגישות מוסמך או ייעוץ משפטי.</p>
@@ -339,27 +521,17 @@
       </div>
     </div>
   </section>
-
-  <section class="next" aria-labelledby="next-t">
-    <div class="wrap">
-      <div>
-        <h2 id="next-t">מוכנים להתחיל?</h2>
-        <p>התקנה ל-Claude, ל-Codex או לכל סוכן אחר, בכמה שורות.</p>
-      </div>
-      <a class="btn btn-primary" href="install.html">להוראות ההתקנה</a>
-    </div>
-  </section>
 </main>
 
 <footer>
   <div class="wrap">
     <div>
-      <h2>הצהרת נגישות של האתר</h2>
-      <p>האתר נבנה לפי WCAG 2.1 ברמת AA: שפה וכיווניות מוגדרות, קישור דילוג לתוכן, ניווט מלא במקלדת עם סימון מיקוד ברור, ניגודיות תקינה במצב בהיר וכהה, וכיבוד הגדרת הפחתת תנועה.</p>
+      <h2>הצהרת נגישות של עמוד זה</h2>
+      <p>העמוד נבנה לפי WCAG 2.1 ברמת AA: שפה וכיווניות מוגדרות, קישור דילוג לתוכן, ניווט מלא במקלדת עם סימון מיקוד ברור, ניגודיות תקינה במצב בהיר וכהה, וכיבוד הגדרת הפחתת תנועה.</p>
     </div>
     <div>
-      <p>נתקלתם בבעיית נגישות או בממצא שגוי של הסורק? <a href="https://github.com/jordanhemo/il-accessibility-audit/issues">דווחו ב-GitHub</a>.</p>
-      <p>לסוכני AI: <a href="for-agents.md">for-agents.md</a> · <a href="llms.txt">llms.txt</a></p>
+      <p>נתקלתם בבעיית נגישות או בממצא שגוי של הסורק? פתחו דיווח ב-<a href="https://github.com/jordanhemo/il-accessibility-audit/issues">GitHub Issues</a>.</p>
+      <p>לסוכני AI: <a href="/for-agents.md">for-agents.md</a> · <a href="/llms.txt">llms.txt</a></p>
       <p>קוד פתוח ברישיון MIT.</p>
     </div>
   </div>
@@ -371,6 +543,7 @@
   var bgPick = document.getElementById('bg-pick'), bgHex = document.getElementById('bg-hex');
   var ratioEl = document.getElementById('ratio'), meter = document.getElementById('meter');
   var verdicts = document.getElementById('verdicts').children, preview = document.getElementById('preview');
+
   function parse(h) {
     h = (h || '').trim().replace(/^#/, '');
     if (/^[0-9a-f]{3}$/i.test(h)) h = h.replace(/./g, function (c) { return c + c; });
@@ -381,7 +554,6 @@
     var c = rgb.map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
     return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
   }
-  function hex(p) { return '#' + p.map(function (v) { return ('0' + v.toString(16)).slice(-2); }).join(''); }
   function update() {
     var fg = parse(fgHex.value), bg = parse(bgHex.value);
     if (!fg || !bg) return;
@@ -394,13 +566,23 @@
       verdicts[i].className = 'verdict ' + (pass ? 'pass' : 'fail');
       verdicts[i].textContent = (pass ? 'עובר ' : 'נכשל ') + t[1];
     });
-    preview.style.color = hex(fg); preview.style.background = hex(bg);
+    preview.style.color = fgHex.value; preview.style.background = bgHex.value;
   }
-  function bind(pick, field) {
-    pick.addEventListener('input', function () { field.value = pick.value; update(); });
-    field.addEventListener('input', function () { var p = parse(field.value); if (p) pick.value = hex(p); update(); });
+  function bind(pick, hex) {
+    pick.addEventListener('input', function () { hex.value = pick.value; update(); });
+    hex.addEventListener('input', function () { var p = parse(hex.value); if (p) { pick.value = '#' + p.map(function (v) { return ('0' + v.toString(16)).slice(-2); }).join(''); } update(); });
   }
   bind(fgPick, fgHex); bind(bgPick, bgHex); update();
+
+  var copyBtn = document.getElementById('copy-btn'), msg = document.getElementById('agent-msg'), status = document.getElementById('copy-status');
+  function selectMsg() { msg.focus(); msg.select(); msg.setSelectionRange(0, msg.value.length); }
+  copyBtn.addEventListener('click', function () {
+    var done = function () { status.textContent = 'הועתק. הדביקו את ההודעה אצל הסוכן.'; };
+    var fail = function () { selectMsg(); status.textContent = 'הטקסט סומן. העתיקו אותו עם Ctrl+C.'; };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(msg.value).then(done, fail);
+    } else { fail(); }
+  });
 })();
 </script>
 </body>
