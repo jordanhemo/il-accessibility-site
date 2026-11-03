@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>התקנת בודק הנגישות</title>
+<meta name="description" content="איך להתקין את בודק הנגישות הישראלי ב-Claude, ב-Codex CLI או בכל סוכן AI אחר, והודעה מוכנה לשליחה לסוכן שלכם.">
+<link rel="canonical" href="https://il-accessibility-site.vercel.app/install">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:title" content="התקנת בודק הנגישות הישראלי">
+<meta property="og:description" content="התקנה ל-Claude, Codex וכל סוכן AI, והודעה מוכנה לשליחה לסוכן.">
+<meta property="og:url" content="https://il-accessibility-site.vercel.app/install">
+<meta property="og:locale" content="he_IL">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<style>
+.layout { display: grid; grid-template-columns: 200px 1fr; gap: 48px; align-items: start; }
+.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 84px); padding-block: 40px; }
+.toc p { font-size: 0.82rem; color: var(--ink-2); font-weight: 500; margin-bottom: 10px; }
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; border-inline-start: 1px solid var(--rule); }
+.toc a { display: block; padding: 4px 14px; color: var(--ink-2); text-decoration: none; font-size: 0.95rem; margin-inline-start: -1px; border-inline-start: 2px solid transparent; }
+.toc a:hover { color: var(--ink); border-inline-start-color: var(--ink-2); }
+.content { min-width: 0; }
+.content section:first-of-type { border-top: 0; }
+
+.downloads { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.dl { display: grid; gap: 10px; align-content: start; }
+.dl .file { font-family: var(--mono); font-size: 0.9rem; direction: ltr; text-align: right; color: var(--ink); }
+.dl p { color: var(--ink-2); font-size: 0.95rem; }
+.dl .btn { justify-self: start; margin-top: 4px; }
+
+.agent { display: grid; gap: 4px; padding-block: 28px; border-bottom: 1px solid var(--rule); }
+.agent:first-of-type { padding-top: 0; }
+.agent:last-of-type { border-bottom: 0; }
+.agent-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.agent-head .tag { background: var(--surface); color: var(--ink-2); }
+.steps { margin: 12px 0 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 10px; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; min-width: 0; }
+.steps li::before { content: counter(s); display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--rule); font-size: 0.82rem; font-weight: 500; color: var(--ink-2); font-variant-numeric: tabular-nums; margin-top: 1px; }
+.steps li > div { min-width: 0; }
+.steps pre.code { margin-top: 8px; }
+.note { color: var(--ink-2); font-size: 0.93rem; margin-top: 10px; }
+
+.prompts { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.prompts li { padding: 14px 18px; border: 1px solid var(--rule); border-radius: 10px; }
+.prompts li[lang="en"] { direction: ltr; text-align: left; }
+
+.sendbox { border: 1px solid var(--rule); border-radius: 14px; padding: 22px; display: grid; gap: 12px; background: var(--surface); }
+.sendbox label { font-weight: 500; font-size: 0.95rem; }
+.sendbox label span { color: var(--ink-2); font-weight: 400; }
+.sendbox textarea { width: 100%; direction: ltr; text-align: left; font: 0.86rem/1.65 var(--mono); padding: 14px 16px; border: 1px solid var(--rule); border-radius: 10px; background: var(--bg); color: var(--ink); resize: vertical; }
+.send-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.send-status { color: var(--ok); font-weight: 500; min-height: 1.5em; }
+.send-actions a { margin-inline-start: auto; color: var(--ink-2); font-size: 0.95rem; }
+
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 12px; }
+th, td { text-align: start; padding: 11px 16px; border-top: 1px solid var(--rule); vertical-align: top; }
+thead th { border-top: 0; background: var(--surface); font-weight: 500; }
+td:first-child { white-space: nowrap; }
+
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; gap: 0; }
+  .toc { position: static; padding-block: 0 8px; }
+  .toc ol { display: flex; flex-wrap: wrap; gap: 6px; border: 0; }
+  .toc a { border: 1px solid var(--rule); border-radius: 999px; padding: 4px 12px; margin: 0; }
+  .downloads { grid-template-columns: 1fr; }
+  td:first-child { white-space: normal; }
+  td code { word-break: break-all; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">דלג לתוכן העמוד</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="index.html">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="3" width="26" height="26" rx="8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-dasharray="7 4"/><circle cx="16" cy="16" r="4.5" fill="var(--focus)"/></svg>
+      <span>בודק נגישות ישראלי</span>
+    </a>
+    <nav aria-label="ניווט ראשי">
+      <ul>
+        <li><a href="index.html">אודות</a></li>
+        <li><a href="index.html#checks">מה נבדק</a></li>
+        <li><a href="index.html#contrast">מד ניגודיות</a></li>
+        <li><a href="index.html#law">החוק</a></li>
+        <li><a class="nav-cta" href="install.html" aria-current="page">התקנה</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <div class="wrap page-head">
+    <p class="eyebrow">התקנה</p>
+    <h1>מתקינים פעם אחת, מבקשים בשפה חופשית</h1>
+    <p class="lede">הסקיל כתוב בפורמט Agent Skills, שנתמך על ידי Claude, Codex CLI וכלים נוספים. כל סוכן אחר יכול להריץ את הסורק ישירות. צריך רק Python 3.</p>
+  </div>
+
+  <div class="wrap layout">
+    <nav class="toc" aria-label="בעמוד זה">
+      <p>בעמוד זה</p>
+      <ol>
+        <li><a href="#download">הורדה</a></li>
+        <li><a href="#agents">התקנה לפי סוכן</a></li>
+        <li><a href="#send">שליחה לסוכן שלכם</a></li>
+        <li><a href="#use">איך מבקשים</a></li>
+        <li><a href="#cli">בלי סוכן</a></li>
+      </ol>
+    </nav>
+
+    <div class="content">
+      <section id="download" aria-labelledby="download-t">
+        <div class="sec-head">
+          <h2 id="download-t">הורדה</h2>
+          <p>שני הקבצים מכילים אותה תיקייה. ההבדל הוא רק במקום שאליו מעלים אותם.</p>
+        </div>
+        <div class="downloads">
+          <div class="panel dl">
+            <span class="file">il-accessibility-audit.skill</span>
+            <p>להעלאה ב-Claude.ai או באפליקציית Claude, בהגדרות תחת Skills.</p>
+            <a class="btn btn-primary" href="https://github.com/jordanhemo/il-accessibility-audit/raw/main/dist/il-accessibility-audit.skill">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+              הורדת ‎.skill
+            </a>
+          </div>
+          <div class="panel dl">
+            <span class="file">il-accessibility-audit.zip</span>
+            <p>לפריסה בתיקיית הסקילים של Claude Code, של Codex, או בתוך הפרויקט.</p>
+            <a class="btn btn-plain" href="https://github.com/jordanhemo/il-accessibility-audit/raw/main/dist/il-accessibility-audit.zip">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+              הורדת ‎.zip
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section id="agents" aria-labelledby="agents-t">
+        <div class="sec-head">
+          <h2 id="agents-t">התקנה לפי סוכן</h2>
+        </div>
+
+        <div class="agent">
+          <div class="agent-head"><h3>Claude.ai ואפליקציית Claude</h3><span class="tag">ללא טרמינל</span></div>
+          <ol class="steps">
+            <li><div><a href="https://github.com/jordanhemo/il-accessibility-audit/raw/main/dist/il-accessibility-audit.skill">מורידים את קובץ ה-‎.skill</a>.</div></li>
+            <li><div>בהגדרות, בחלק Skills, מעלים את הקובץ.</div></li>
+            <li><div>מבקשים מ-Claude לבדוק נגישות של פרויקט.</div></li>
+          </ol>
+        </div>
+
+        <div class="agent">
+          <div class="agent-head"><h3>Claude Code</h3></div>
+          <ol class="steps">
+            <li><div>מעתיקים את תיקיית הסקיל לתיקיית הסקילים של המשתמש:
+<pre class="code">git clone https://github.com/jordanhemo/il-accessibility-audit.git
+cp -r il-accessibility-audit/il-accessibility-audit ~/.claude/skills/</pre></div></li>
+            <li><div>פותחים סשן חדש. הסקיל נטען לבד כשמבקשים בדיקת נגישות.</div></li>
+          </ol>
+          <p class="note">לפרויקט אחד בלבד: מעתיקים לתיקייה <code>.claude/skills/</code> בתוך הפרויקט.</p>
+        </div>
+
+        <div class="agent">
+          <div class="agent-head"><h3>Codex CLI</h3><span class="tag">OpenAI</span></div>
+          <ol class="steps">
+            <li><div>מעתיקים את התיקייה לתיקיית הסקילים של Codex:
+<pre class="code">git clone https://github.com/jordanhemo/il-accessibility-audit.git
+mkdir -p ~/.codex/skills
+cp -r il-accessibility-audit/il-accessibility-audit ~/.codex/skills/</pre></div></li>
+            <li><div>מפעילים מחדש את Codex. בגרסאות ישנות צריך גם <code>codex --enable skills</code>.</div></li>
+          </ol>
+          <p class="note">לפרויקט אחד בלבד: Codex מזהה סקילים גם תחת <code>.agents/skills/</code> בפרויקט.</p>
+        </div>
+
+        <div class="agent">
+          <div class="agent-head"><h3>Cursor, Gemini CLI, Aider ואחרים</h3></div>
+          <ol class="steps">
+            <li><div>מעתיקים את תיקיית <code>il-accessibility-audit/</code> לפרויקט.</div></li>
+            <li><div>מבקשים מהסוכן: "קרא את <code>il-accessibility-audit/SKILL.md</code> ופעל לפיו כדי לבדוק את הפרויקט".</div></li>
+          </ol>
+          <p class="note">סוכן שמריץ פקודות יכול גם להפעיל את הסורק ישירות, כמו בסעיף "בלי סוכן" למטה.</p>
+        </div>
+      </section>
+
+      <section id="send" aria-labelledby="send-t">
+        <div class="sec-head">
+          <h2 id="send-t">שליחה לסוכן שלכם</h2>
+          <p>לא רוצים להתקין בעצמכם? מעתיקים את ההודעה ומדביקים אותה אצל הסוכן שאתם עובדים איתו. היא מפנה אותו לדף הוראות שנכתב במיוחד לסוכנים, והוא ממשיך משם לבד.</p>
+        </div>
+        <div class="sendbox">
+          <label for="agent-msg">הודעה לסוכן <span>(באנגלית, כי כך סוכנים מבצעים הוראות בצורה המדויקת ביותר)</span></label>
+          <textarea id="agent-msg" rows="10" readonly spellcheck="false">Please install and use the "il-accessibility-audit" skill to audit my web project for Israeli accessibility law (Israeli Standard 5568, WCAG 2.0/2.1 AA plus Israeli requirements).
+
+1. Read the agent instructions: https://il-accessibility-site.vercel.app/for-agents.md
+2. Download the skill: https://github.com/jordanhemo/il-accessibility-audit/raw/main/dist/il-accessibility-audit.zip and install it in your skills directory (Claude Code: ~/.claude/skills/, Codex: ~/.codex/skills/, otherwise anywhere in the project).
+3. Run: python3 scripts/scan.py <my project dir> --format md --fix --report accessibility-report.md
+4. Fix only what the tool marks as safe. For alt text, labels, colors and the accessibility statement, ask me instead of guessing.
+5. Summarize the report in Hebrew.</textarea>
+          <div class="send-actions">
+            <button type="button" class="btn btn-primary" id="copy-btn">העתקת ההודעה</button>
+            <span class="send-status" id="copy-status" role="status" aria-live="polite"></span>
+            <a href="for-agents.md">דף ההוראות לסוכנים</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="use" aria-labelledby="use-t">
+        <div class="sec-head">
+          <h2 id="use-t">איך מבקשים</h2>
+          <p>אין פקודה לזכור. כותבים לסוכן בשפה חופשית, למשל:</p>
+        </div>
+        <ul class="prompts">
+          <li>תבדוק אם האתר בתיקייה הזו עומד בתקן הנגישות הישראלי ותתקן מה שאפשר</li>
+          <li>אני צריך דוח נגישות לפי תקן 5568 לפרויקט ה-Next.js שלי</li>
+          <li>חסרה לנו הצהרת נגישות? תכין לי אחת</li>
+          <li lang="en">Audit this project for Israeli accessibility law (IS 5568) and fix what is safe to fix.</li>
+        </ul>
+      </section>
+
+      <section id="cli" aria-labelledby="cli-t">
+        <div class="sec-head">
+          <h2 id="cli-t">בלי סוכן</h2>
+          <p>הסורק הוא כלי שורת פקודה רגיל. מריצים אותו מתוך תיקיית הסקיל:</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th scope="col">פקודה</th><th scope="col">מה היא עושה</th></tr></thead>
+            <tbody>
+              <tr><td><code>python3 scripts/scan.py &lt;dir&gt;</code></td><td>מדפיסה את הממצאים כ-JSON. לא משנה אף קובץ.</td></tr>
+              <tr><td><code>… --format md</code></td><td>מדפיסה דוח בעברית במקום JSON.</td></tr>
+              <tr><td><code>… --report accessibility-report.md</code></td><td>שומרת את הדוח לקובץ.</td></tr>
+              <tr><td><code>… --fix</code></td><td>מתקנת בקבצים רק את <code>lang</code>, <code>dir</code> ו-<code>tabindex</code> חיובי.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <h2>הצהרת נגישות של האתר</h2>
+      <p>האתר נבנה לפי WCAG 2.1 ברמת AA: שפה וכיווניות מוגדרות, קישור דילוג לתוכן, ניווט מלא במקלדת עם סימון מיקוד ברור, ניגודיות תקינה במצב בהיר וכהה, וכיבוד הגדרת הפחתת תנועה.</p>
+    </div>
+    <div>
+      <p>נתקלתם בבעיית נגישות או בממצא שגוי של הסורק? <a href="https://github.com/jordanhemo/il-accessibility-audit/issues">דווחו ב-GitHub</a>.</p>
+      <p>לסוכני AI: <a href="for-agents.md">for-agents.md</a> · <a href="llms.txt">llms.txt</a></p>
+      <p>קוד פתוח ברישיון MIT.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var btn = document.getElementById('copy-btn'), msg = document.getElementById('agent-msg'), status = document.getElementById('copy-status');
+  function selectMsg() { msg.focus(); msg.select(); msg.setSelectionRange(0, msg.value.length); }
+  btn.addEventListener('click', function () {
+    var done = function () { status.textContent = 'הועתק. הדביקו את ההודעה אצל הסוכן.'; };
+    var fail = function () { selectMsg(); status.textContent = 'הטקסט סומן. העתיקו אותו עם Ctrl+C.'; };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(msg.value).then(done, fail);
+    } else { fail(); }
+  });
+})();
+</script>
+</body>
+</html>

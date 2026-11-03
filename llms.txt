@@ -17,4 +17,5 @@
 ## Optional
 
 - [Landing page](https://il-accessibility-site.vercel.app/): human-facing overview in Hebrew with an interactive contrast meter.
+- [Installation page](https://il-accessibility-site.vercel.app/install): human-facing install steps per agent, in Hebrew.
 - [Source repository](https://github.com/jordanhemo/il-accessibility-audit)
