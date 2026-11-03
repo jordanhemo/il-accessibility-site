@@ -156,14 +156,15 @@ td:first-child { white-space: nowrap; }
         </div>
 
         <div class="agent">
-          <div class="agent-head"><h3>Claude Code</h3></div>
+          <div class="agent-head"><h3>Claude Code</h3><span class="tag">פלאגין</span></div>
           <ol class="steps">
-            <li><div>מעתיקים את תיקיית הסקיל לתיקיית הסקילים של המשתמש:
-<pre class="code">git clone https://github.com/jordanhemo/il-accessibility-audit.git
-cp -r il-accessibility-audit/il-accessibility-audit ~/.claude/skills/</pre></div></li>
+            <li><div>מקלידים בשורת הפקודה של Claude Code:
+<pre class="code">/plugin install il-accessibility-audit --marketplace jordanhemo/il-accessibility-audit</pre></div></li>
+            <li><div>מאשרים (<code>y</code>) את הוספת ה-marketplace ובוחרים היקף התקנה.</div></li>
             <li><div>פותחים סשן חדש. הסקיל נטען לבד כשמבקשים בדיקת נגישות.</div></li>
           </ol>
-          <p class="note">לפרויקט אחד בלבד: מעתיקים לתיקייה <code>.claude/skills/</code> בתוך הפרויקט.</p>
+          <p class="note">באפליקציית הדסקטופ: + ליד תיבת ההקלדה, Plugins, ‏Add marketplace עם <code>jordanhemo/il-accessibility-audit</code>, ואז Add plugin. עדכון לגרסה חדשה: <code>/plugin marketplace update il-accessibility-audit</code>.</p>
+          <p class="note">בלי פלאגין: <code>git clone</code> של הריפו והעתקת התיקייה <code>il-accessibility-audit/</code> אל <code>~/.claude/skills/</code>.</p>
         </div>
 
         <div class="agent">

@@ -28,7 +28,7 @@ Pick the one that matches your environment. The zip unpacks to a folder named
 
 | Agent | Where the folder goes |
 |---|---|
-| Claude Code | `~/.claude/skills/il-accessibility-audit/` or `<project>/.claude/skills/` |
+| Claude Code | plugin (preferred): user runs `/plugin install il-accessibility-audit --marketplace jordanhemo/il-accessibility-audit`, or from a shell `claude plugin install il-accessibility-audit --marketplace jordanhemo/il-accessibility-audit`; otherwise copy the folder to `~/.claude/skills/` or `<project>/.claude/skills/` |
 | Claude.ai / desktop | user uploads the `.skill` file in Settings → Skills |
 | Codex CLI | `~/.codex/skills/il-accessibility-audit/` or `<project>/.agents/skills/` (older versions: `codex --enable skills`) |
 | Cursor, Gemini CLI, Aider, other | anywhere in the project; read `SKILL.md` and follow it |
