@@ -1,0 +1,20 @@
+# IL Accessibility Audit (בודק נגישות ישראלי)
+
+> A free, open-source agent skill that audits web projects against Israeli Standard 5568 (Israeli accessibility law, based on WCAG 2.0/2.1 AA), writes a Hebrew report and auto-fixes the unambiguous findings. Works with Claude, Codex CLI and any agent that can run Python.
+
+## For agents
+
+- [Instructions for AI agents](https://il-accessibility-site.vercel.app/for-agents.md): what the skill is, where to install it per agent, how to run it, what not to guess.
+- [SKILL.md](https://raw.githubusercontent.com/jordanhemo/il-accessibility-audit/main/il-accessibility-audit/SKILL.md): the skill's own instructions, in the Agent Skills format.
+- [Download zip](https://github.com/jordanhemo/il-accessibility-audit/raw/main/dist/il-accessibility-audit.zip): the skill folder.
+
+## Reference
+
+- [Israeli accessibility law background](https://raw.githubusercontent.com/jordanhemo/il-accessibility-audit/main/il-accessibility-audit/references/il-accessibility-law.md): the regulations, IS 5568, and the rule-to-WCAG mapping (Hebrew).
+- [Accessibility statement template](https://raw.githubusercontent.com/jordanhemo/il-accessibility-audit/main/il-accessibility-audit/references/accessibility-statement-template.md): the legally required page, with placeholders (Hebrew).
+- [Scanner source](https://raw.githubusercontent.com/jordanhemo/il-accessibility-audit/main/il-accessibility-audit/scripts/scan.py): Python 3, no dependencies.
+
+## Optional
+
+- [Landing page](https://il-accessibility-site.vercel.app/): human-facing overview in Hebrew with an interactive contrast meter.
+- [Source repository](https://github.com/jordanhemo/il-accessibility-audit)
